@@ -4,6 +4,7 @@ NUGET
     FAKE (4.64.4)
     FSharp.Core (4.3.3)
     FSharp.Data (2.4.4)
+    Newtonsoft.Json (10.0.3)
 
 GROUP Build
 

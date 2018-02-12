@@ -13,7 +13,7 @@ type Connection = {
   Host: string
   Port: int
   Database: string
-  Jwt: string option
+  Jwt: Jwt option
 }
 
 let private connectionString (connection: Connection) =
@@ -43,41 +43,37 @@ let private handleResponse (response: HttpResponse) =
   | 200 | 201 -> parseResponse response.Body
   | _ -> Error (sprintf "Connection failed with %d: %s" response.StatusCode response.ResponseUrl)
 
-let get (connection: Connection) (localPath: string) = async {
+let private query (method: string) (connection: Connection) (localPath: string) = async {
   let requestUri = connectionString connection + localPath
   match connection.Jwt with
   | None ->
-    let! response = Http.AsyncRequest(requestUri, silentHttpErrors = true)
+    let! response = Http.AsyncRequest(requestUri, httpMethod = method, silentHttpErrors = true)
     return handleResponse response
   | Some jwt ->
     let headers = [HttpRequestHeaders.Authorization ("bearer " + jwt)]
-    let! response = Http.AsyncRequest(requestUri, headers = headers, silentHttpErrors = true)
+    let! response = Http.AsyncRequest(requestUri, httpMethod = method, headers = headers, silentHttpErrors = true)
     return handleResponse response
 }
 
-let post (connection: Connection) (localPath: string) (body: string) = async {
+let get = query HttpMethod.Get
+
+let private command (method: string) (connection: Connection) (localPath: string) (body: string) = async {
   let requestUri = connectionString connection + localPath
   match connection.Jwt with
   | None ->
-    let! response = Http.AsyncRequest(requestUri, body = TextRequest body, silentHttpErrors = true)
+    let! response = Http.AsyncRequest(requestUri, httpMethod = method, body = TextRequest body, silentHttpErrors = true)
     return handleResponse response
   | Some jwt ->
     let headers = [HttpRequestHeaders.Authorization ("bearer " + jwt)]
-    let! response = Http.AsyncRequest(requestUri, headers = headers, body = TextRequest body, silentHttpErrors = true)
+    let! response = Http.AsyncRequest(requestUri, httpMethod = method, headers = headers, body = TextRequest body, silentHttpErrors = true)
     return handleResponse response
 }
 
-let put (connection: Connection) (localPath: string) (body: string) = async {
-  let requestUri = connectionString connection + localPath
-  match connection.Jwt with
-  | None ->
-    let! response = Http.AsyncRequest(requestUri, httpMethod = HttpMethod.Put, body = TextRequest body, silentHttpErrors = true)
-    return handleResponse response
-  | Some jwt ->
-    let headers = [HttpRequestHeaders.Authorization ("bearer " + jwt)]
-    let! response = Http.AsyncRequest(requestUri, httpMethod = HttpMethod.Put, headers = headers, body = TextRequest body, silentHttpErrors = true)
-    return handleResponse response
-}
+let patch = command HttpMethod.Patch
+
+let post = command HttpMethod.Post
+
+let put = command HttpMethod.Put
 
 let connect (uri: string) : Async<Result<Connection, string>> = async {
   let connection = createConnection uri
