@@ -1,7 +1,11 @@
 module Farango.Documents
 
-open Farango.Utils
+open Farango.Json
 open Farango.Connection
+open Farango.Collections
+
+let private setKeys (keys: List<string>) (map: Map<string, obj>) =
+  map |> Map.add "keys" (box<List<string>> keys)
 
 let getDocument (connection: Connection) (collection: string) (key: string) = async {
   let localPath = sprintf "_db/%s/_api/document/%s/%s" connection.Database collection key
@@ -13,10 +17,7 @@ let createDocument (connection: Connection) (collection: string) (body: string) 
   return! post connection localPath body
 }
 
-let createDocuments (connection: Connection) (collection: string) (body: List<string>) = async {
-  let localPath = sprintf "_db/%s/_api/document/%s" connection.Database collection
-  return! post connection localPath (serializeList body)
-}
+let createDocuments = createDocument
 
 let replaceDocument (connection: Connection) (collection: string) (key: string) (body: string) = async {
   let localPath = sprintf "_db/%s/_api/document/%s/%s" connection.Database collection key
@@ -30,6 +31,10 @@ let updateDocument (connection: Connection) (collection: string) (key: string) (
 
 let getDocumentsByKeys (connection: Connection) (collection: string) (keys: List<string>) = async {
   let localPath = sprintf "_db/%s/_api/simple/lookup-by-keys" connection.Database
-  let body = sprintf "{\"collection\":\"%s\",\"keys\":%s}" collection (serializeList keys)
+  let body =
+    Map.empty
+    |> setCollection collection
+    |> setKeys keys
+    |> serialize
   return! put connection localPath body
 }

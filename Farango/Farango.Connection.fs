@@ -1,10 +1,14 @@
 module Farango.Connection
 
 open System
+open Newtonsoft.Json
 open FSharp.Data
-open FSharp.Data.JsonExtensions
 
 type Jwt = string
+
+type JwtResponse = {
+  jwt: string
+}
 
 type Connection = {
   Scheme: string
@@ -33,10 +37,14 @@ let private createConnection (uri: string): Result<Connection, string> =
     let database = uri.LocalPath.Replace("/","")
     Ok { Scheme = scheme; User = user; Pass = pass; Host = uri.Host; Port = uri.Port; Database = database ; Jwt = None }
   with
-    | :? System.Exception -> Result.Error "Could not parse URI into Connection."
+    | _ -> Result.Error "Could not parse URI into Connection."
 
-let private parseJwt (jsonString: string): Result<Jwt, string> =
-  Ok ((JsonValue.Parse jsonString)?jwt.AsString())
+let private parseJwtResponse (jsonString: string): Result<string, exn> =
+  try
+    let jwt = JsonConvert.DeserializeObject<JwtResponse> jsonString
+    Ok jwt.jwt
+  with
+    | ex -> Error ex
 
 let private handleResponse (response: HttpResponse) =
   match response.StatusCode with
@@ -84,7 +92,7 @@ let connect (uri: string) : Async<Result<Connection, string>> = async {
     let! response = post connection "_open/auth" body
     match response with
     | Ok response ->
-      let jwt = parseJwt response
+      let jwt = parseJwtResponse response
       match jwt with
       | Error _ -> return Ok connection
       | Ok jwt -> return Ok { connection with Jwt = Some jwt}
