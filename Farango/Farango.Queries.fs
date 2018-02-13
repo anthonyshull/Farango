@@ -48,16 +48,12 @@ let rec private getCursor (connection: Connection) (cursor: string) (results: Li
 let private getMore (connection: Connection) (response: QueryResponse) = async {
   match response.hasMore, response.id with
     | false, _ | _, None ->
-      return 
-        response.result
-        |> List.map serialize
-        |> Ok
+      return Ok response.result
     | true, Some cursor ->
       return
         response.result
         |> getCursor connection cursor
         |> Async.RunSynchronously
-        |> Result.map (List.map serialize)
 }
 
 let query (connection: Connection) (query: string) (batchSize: int option) = async {
@@ -72,6 +68,7 @@ let query (connection: Connection) (query: string) (batchSize: int option) = asy
     |> Result.bind deserialize<QueryResponse>
     |> Result.map (getMore connection)
     |> Result.bind Async.RunSynchronously
+    |> Result.map (List.map serialize)
 }
 
 let queryByExample (connection: Connection) (collection: string) (example: Map<string, obj>) = async {
