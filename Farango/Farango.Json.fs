@@ -13,6 +13,8 @@ let serializerSettings =
     Converters = [|jsonConverter|]
   )
 
+let emptyBody = JsonConvert.SerializeObject Map.empty
+
 let serialize obj =
   JsonConvert.SerializeObject (obj, serializerSettings)
 

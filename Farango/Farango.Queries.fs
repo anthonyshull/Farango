@@ -23,66 +23,63 @@ let private setExample (example: Map<string, obj>) (map: Map<string, obj>) =
 
 let explain (connection: Connection) (query: string) = async {
   let localPath = sprintf "_db/%s/_api/explain" connection.Database
-  let body =
+  return!
     Map.empty
     |> setQuery query
     |> serialize
-  return! post connection localPath body
+    |> post connection localPath
 }
 
-let rec private getCursor (connection: Connection) (cursor: string option) (results: List<Map<string, obj>>) = async {
-  match cursor with
-  | None -> return Ok results
-  | Some cursor ->
-    let localPath = sprintf "_db/%s/_api/cursor/%s" connection.Database cursor
-    let! serializedResponse = put connection localPath "{}"
-    match serializedResponse with
-    | Error error -> return Error error
-    | Ok serializedResponse ->
-      match deserialize<QueryResponse> serializedResponse with
-      | Error error -> return Error error
-      | Ok response ->
-        match response.hasMore with
-        | false -> return Ok (results @ response.result)
-        | true ->
-           return! getCursor connection (Some cursor) (results @ response.result)
+let rec private getCursor (connection: Connection) (cursor: string) (results: List<Map<string, obj>>) = async {
+  let localPath = sprintf "_db/%s/_api/cursor/%s" connection.Database cursor
+  return
+    emptyBody
+    |> put connection localPath
+    |> Async.RunSynchronously
+    |> Result.bind deserialize<QueryResponse>
+    |> Result.map (fun response -> async {
+      match response.hasMore with
+      | false -> return Ok (results @ response.result)
+      | true -> return! getCursor connection cursor (results @ response.result)
+    })
+    |> Result.bind Async.RunSynchronously
+}
+
+let private getMore (connection: Connection) (response: QueryResponse) = async {
+  match response.hasMore, response.id with
+    | false, _ | _, None ->
+      return 
+        response.result
+        |> List.map serialize
+        |> Ok
+    | true, Some cursor ->
+      return
+        response.result
+        |> getCursor connection cursor
+        |> Async.RunSynchronously
+        |> Result.map (List.map serialize)
 }
 
 let query (connection: Connection) (query: string) (batchSize: int option) = async {
   let localPath = sprintf "_db/%s/_api/cursor" connection.Database
-  let body =
+  return
     Map.empty
     |> setQuery query
     |> setBatchSize (defaultArg batchSize 0)
     |> serialize
-  let! serializedResponse = post connection localPath body
-  match serializedResponse with
-  | Error error -> return Error error
-  | Ok serializedResponse ->
-    match deserialize<QueryResponse> serializedResponse with
-    | Error error -> return Error error
-    | Ok response ->
-      match response.hasMore with
-      | false ->
-        return response.result
-        |> List.map serialize
-        |> Ok
-      | true ->
-        let! cursorResults = getCursor connection response.id response.result
-        match cursorResults with
-        | Error error -> return Error error
-        | Ok results ->
-          return results
-          |> List.map serialize
-          |> Ok
+    |> post connection localPath
+    |> Async.RunSynchronously
+    |> Result.bind deserialize<QueryResponse>
+    |> Result.map (getMore connection)
+    |> Result.bind Async.RunSynchronously
 }
 
 let queryByExample (connection: Connection) (collection: string) (example: Map<string, obj>) = async {
   let localPath = sprintf "_db/%s/_api/simple/by-example" connection.Database
-  let body =
+  return!
     Map.empty
     |> setCollection collection
     |> setExample example
     |> serialize
-  return! put connection localPath body
+    |> put connection localPath
 } 

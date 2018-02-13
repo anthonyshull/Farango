@@ -12,6 +12,7 @@ We leave it up to client users how they want to parse results.
 <hr />
 :coffee: We need all the help we can get
 
+
 If you find a bug or want a new feature, create an issue.
 Feel free to fix it or implement it yourself and issue a pull request.
 
@@ -22,7 +23,7 @@ Feel free to fix it or implement it yourself and issue a pull request.
 Farango is currently a library of convenience.
 That means we will implement features as we need them.
 
-0.0.1 
+**0.0.1** 
 
 ### Connecting
 

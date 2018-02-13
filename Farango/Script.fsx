@@ -15,5 +15,5 @@ open Farango.Queries
 let connection = connect "http://anthonyshull:password@localhost:8529/auth" |> Async.RunSynchronously
 match connection with
 | Ok connection ->
-  query connection "FOR t IN tokens RETURN t" (Some 300) |> Async.RunSynchronously
+  query connection "FOR t IN tokens RETURN t" (Some 3) |> Async.RunSynchronously
 | Error error -> Error error
