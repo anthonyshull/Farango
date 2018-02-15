@@ -15,6 +15,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="style.css" />
+    <script src="tips.js" type="text/javascript"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -53,13 +55,11 @@ It also allows you to create multiple connections (to multiple databases or even
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
-<span class="l">5: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#load</span> <span class="s">&quot;../Farango/Farango.Connection.fs&quot;</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">Farango</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">Connection</span>
 
-<span class="c">// let connection = connect &quot;http[s]://[username]:[password]@[host]:[port]/[database]&quot; |&gt; Async.RunSynchronously</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">connection</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="f">connect</span> <span class="s">&quot;http://anthonyshull:password@localhost:8529/auth&quot;</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="f">RunSynchronously</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">connection</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="f">connect</span> <span class="s">&quot;http[s]://[username]:[password]@[host]:[port]/[database]&quot;</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="f">RunSynchronously</span>
 </code></pre></td>
 </tr>
 </table>
@@ -153,11 +153,6 @@ For example, if we wanted to create, update, replace, and then delete a user fro
 <span class="l">17: </span>
 <span class="l">18: </span>
 <span class="l">19: </span>
-<span class="l">20: </span>
-<span class="l">21: </span>
-<span class="l">22: </span>
-<span class="l">23: </span>
-<span class="l">24: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#load</span> <span class="s">&quot;../Farango/Farango.Documents.fs&quot;</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 32)" onmouseover="showTip(event, 'fs1', 32)" class="i">Farango</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 33)" onmouseover="showTip(event, 'fs18', 33)" class="i">Documents</span>
@@ -166,19 +161,14 @@ For example, if we wanted to create, update, replace, and then delete a user fro
   <span class="k">match</span> <span onmouseout="hideTip(event, 'fs3', 35)" onmouseover="showTip(event, 'fs3', 35)" class="i">connection</span> <span class="k">with</span>
   | <span class="i">Ok</span> <span onmouseout="hideTip(event, 'fs3', 36)" onmouseover="showTip(event, 'fs3', 36)" class="i">connection</span> <span class="k">-&gt;</span>
     
-    <span class="c">// createDocument :: Connection -&gt; string -&gt; string -&gt; string</span>
     <span class="k">let!</span> <span class="i">createdDocument</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs19', 37)" onmouseover="showTip(event, 'fs19', 37)" class="i">createDocument</span> <span onmouseout="hideTip(event, 'fs3', 38)" onmouseover="showTip(event, 'fs3', 38)" class="i">connection</span> <span class="s">&quot;users&quot;</span> <span class="s">&quot;{</span><span class="e">\&quot;</span><span class="s">_key</span><span class="e">\&quot;</span><span class="s">:</span><span class="e">\&quot;</span><span class="s">12345</span><span class="e">\&quot;</span><span class="s">}&quot;</span>
 
-    <span class="c">// getDocument :: Connection -&gt; string -&gt; string -&gt; string</span>
     <span class="k">let!</span> <span class="i">document</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 39)" onmouseover="showTip(event, 'fs20', 39)" class="i">getDocument</span> <span onmouseout="hideTip(event, 'fs3', 40)" onmouseover="showTip(event, 'fs3', 40)" class="i">connection</span> <span class="s">&quot;users&quot;</span> <span class="s">&quot;12345&quot;</span>
 
-    <span class="c">// updateDocument :: Connection -&gt; string -&gt; string -&gt; string -&gt; string</span>
     <span class="k">let!</span> <span class="i">updatedDocument</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 41)" onmouseover="showTip(event, 'fs21', 41)" class="i">updateDocument</span> <span onmouseout="hideTip(event, 'fs3', 42)" onmouseover="showTip(event, 'fs3', 42)" class="i">connection</span> <span class="s">&quot;users&quot;</span> <span class="s">&quot;12345&quot;</span> <span class="s">&quot;{</span><span class="e">\&quot;</span><span class="s">username</span><span class="e">\&quot;</span><span class="s">:</span><span class="e">\&quot;</span><span class="s">name</span><span class="e">\&quot;</span><span class="s">}&quot;</span>
 
-    <span class="c">// replaceDocument :: Connection -&gt; string -&gt; string -&gt; string -&gt; string</span>
     <span class="k">let!</span> <span class="i">replacedDocument</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 43)" onmouseover="showTip(event, 'fs22', 43)" class="i">replaceDocument</span> <span onmouseout="hideTip(event, 'fs3', 44)" onmouseover="showTip(event, 'fs3', 44)" class="i">connection</span> <span class="s">&quot;users&quot;</span> <span class="s">&quot;12345&quot;</span> <span class="s">&quot;{</span><span class="e">\&quot;</span><span class="s">username</span><span class="e">\&quot;</span><span class="s">:</span><span class="e">\&quot;</span><span class="s">user</span><span class="e">\&quot;</span><span class="s">,</span><span class="e">\&quot;</span><span class="s">password</span><span class="e">\&quot;</span><span class="s">:</span><span class="e">\&quot;</span><span class="s">pass</span><span class="e">\&quot;</span><span class="s">}&quot;</span>
 
-    <span class="c">// deleteDocument :: Connection -&gt; string -&gt; string</span>
     <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs23', 45)" onmouseover="showTip(event, 'fs23', 45)" class="i">deleteDocument</span> <span onmouseout="hideTip(event, 'fs3', 46)" onmouseover="showTip(event, 'fs3', 46)" class="i">connection</span> <span class="s">&quot;users&quot;</span> <span class="s">&quot;newuser&quot;</span>
 
   | <span class="i">Error</span> <span class="i">error</span> <span class="k">-&gt;</span> <span class="k">return</span> <span class="i">Error</span> <span class="i">error</span>
@@ -262,6 +252,35 @@ Just pass in a serialized JSON string representing an array of documents.</p>
 </code></pre></td>
 </tr>
 </table>
+
+          <div class="tip" id="fs1">namespace Farango</div>
+<div class="tip" id="fs2">module Connection<br /><br />from Farango</div>
+<div class="tip" id="fs3">val connection : obj<br /><br />Full name: Index.connection</div>
+<div class="tip" id="fs4">val connect : uri:string -&gt; Async&lt;&#39;a&gt;<br /><br />Full name: Farango.Connection.connect</div>
+<div class="tip" id="fs5">Multiple items<br />type Async<br />static member AsBeginEnd : computation:(&#39;Arg -&gt; Async&lt;&#39;T&gt;) -&gt; (&#39;Arg * AsyncCallback * obj -&gt; IAsyncResult) * (IAsyncResult -&gt; &#39;T) * (IAsyncResult -&gt; unit)<br />static member AwaitEvent : event:IEvent&lt;&#39;Del,&#39;T&gt; * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt; (requires delegate and &#39;Del :&gt; Delegate)<br />static member AwaitIAsyncResult : iar:IAsyncResult * ?millisecondsTimeout:int -&gt; Async&lt;bool&gt;<br />static member AwaitTask : task:Task -&gt; Async&lt;unit&gt;<br />static member AwaitTask : task:Task&lt;&#39;T&gt; -&gt; Async&lt;&#39;T&gt;<br />static member AwaitWaitHandle : waitHandle:WaitHandle * ?millisecondsTimeout:int -&gt; Async&lt;bool&gt;<br />static member CancelDefaultToken : unit -&gt; unit<br />static member Catch : computation:Async&lt;&#39;T&gt; -&gt; Async&lt;Choice&lt;&#39;T,exn&gt;&gt;<br />static member FromBeginEnd : beginAction:(AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromBeginEnd : arg:&#39;Arg1 * beginAction:(&#39;Arg1 * AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromBeginEnd : arg1:&#39;Arg1 * arg2:&#39;Arg2 * beginAction:(&#39;Arg1 * &#39;Arg2 * AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromBeginEnd : arg1:&#39;Arg1 * arg2:&#39;Arg2 * arg3:&#39;Arg3 * beginAction:(&#39;Arg1 * &#39;Arg2 * &#39;Arg3 * AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromContinuations : callback:((&#39;T -&gt; unit) * (exn -&gt; unit) * (OperationCanceledException -&gt; unit) -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member Ignore : computation:Async&lt;&#39;T&gt; -&gt; Async&lt;unit&gt;<br />static member OnCancel : interruption:(unit -&gt; unit) -&gt; Async&lt;IDisposable&gt;<br />static member Parallel : computations:seq&lt;Async&lt;&#39;T&gt;&gt; -&gt; Async&lt;&#39;T []&gt;<br />static member RunSynchronously : computation:Async&lt;&#39;T&gt; * ?timeout:int * ?cancellationToken:CancellationToken -&gt; &#39;T<br />static member Sleep : millisecondsDueTime:int -&gt; Async&lt;unit&gt;<br />static member Start : computation:Async&lt;unit&gt; * ?cancellationToken:CancellationToken -&gt; unit<br />static member StartAsTask : computation:Async&lt;&#39;T&gt; * ?taskCreationOptions:TaskCreationOptions * ?cancellationToken:CancellationToken -&gt; Task&lt;&#39;T&gt;<br />static member StartChild : computation:Async&lt;&#39;T&gt; * ?millisecondsTimeout:int -&gt; Async&lt;Async&lt;&#39;T&gt;&gt;<br />static member StartChildAsTask : computation:Async&lt;&#39;T&gt; * ?taskCreationOptions:TaskCreationOptions -&gt; Async&lt;Task&lt;&#39;T&gt;&gt;<br />static member StartImmediate : computation:Async&lt;unit&gt; * ?cancellationToken:CancellationToken -&gt; unit<br />static member StartWithContinuations : computation:Async&lt;&#39;T&gt; * continuation:(&#39;T -&gt; unit) * exceptionContinuation:(exn -&gt; unit) * cancellationContinuation:(OperationCanceledException -&gt; unit) * ?cancellationToken:CancellationToken -&gt; unit<br />static member SwitchToContext : syncContext:SynchronizationContext -&gt; Async&lt;unit&gt;<br />static member SwitchToNewThread : unit -&gt; Async&lt;unit&gt;<br />static member SwitchToThreadPool : unit -&gt; Async&lt;unit&gt;<br />static member TryCancelled : computation:Async&lt;&#39;T&gt; * compensation:(OperationCanceledException -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member CancellationToken : Async&lt;CancellationToken&gt;<br />static member DefaultCancellationToken : CancellationToken<br /><br />Full name: Microsoft.FSharp.Control.Async<br /><br />--------------------<br />type Async&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Control.Async&lt;_&gt;</div>
+<div class="tip" id="fs6">static member Async.RunSynchronously : computation:Async&lt;&#39;T&gt; * ?timeout:int * ?cancellationToken:System.Threading.CancellationToken -&gt; &#39;T</div>
+<div class="tip" id="fs7">module Queries<br /><br />from Farango</div>
+<div class="tip" id="fs8">val async : AsyncBuilder<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.async</div>
+<div class="tip" id="fs9">val query : connection:&#39;a -&gt; query:string -&gt; batchSize:int option -&gt; Async&lt;&#39;b&gt;<br /><br />Full name: Farango.Queries.query</div>
+<div class="tip" id="fs10">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs11">Multiple items<br />namespace FSharp<br /><br />--------------------<br />namespace Microsoft.FSharp</div>
+<div class="tip" id="fs12">Multiple items<br />namespace FSharp.Control<br /><br />--------------------<br />namespace Microsoft.FSharp.Control</div>
+<div class="tip" id="fs13">val querySequence : connection:&#39;a -&gt; query:string -&gt; batchSize:int option -&gt; AsyncSeq&lt;&#39;b&gt;<br /><br />Full name: Farango.Queries.querySequence</div>
+<div class="tip" id="fs14">Multiple items<br />module AsyncSeq<br /><br />from FSharp.Control<br /><br />--------------------<br />type AsyncSeq&lt;&#39;T&gt; = IAsyncEnumerable&lt;&#39;T&gt;<br /><br />Full name: FSharp.Control.AsyncSeq&lt;_&gt;</div>
+<div class="tip" id="fs15">val iter : action:(&#39;T -&gt; unit) -&gt; source:AsyncSeq&lt;&#39;T&gt; -&gt; Async&lt;unit&gt;<br /><br />Full name: FSharp.Control.AsyncSeq.iter</div>
+<div class="tip" id="fs16">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs17">static member Async.Start : computation:Async&lt;unit&gt; * ?cancellationToken:System.Threading.CancellationToken -&gt; unit</div>
+<div class="tip" id="fs18">module Documents<br /><br />from Farango</div>
+<div class="tip" id="fs19">val createDocument : connection:&#39;a -&gt; collection:string -&gt; body:string -&gt; Async&lt;obj&gt;<br /><br />Full name: Farango.Documents.createDocument</div>
+<div class="tip" id="fs20">val getDocument : connection:&#39;a -&gt; collection:string -&gt; key:string -&gt; Async&lt;obj&gt;<br /><br />Full name: Farango.Documents.getDocument</div>
+<div class="tip" id="fs21">val updateDocument : connection:&#39;a -&gt; collection:string -&gt; key:string -&gt; body:string -&gt; Async&lt;obj&gt;<br /><br />Full name: Farango.Documents.updateDocument</div>
+<div class="tip" id="fs22">val replaceDocument : connection:&#39;a -&gt; collection:string -&gt; key:string -&gt; body:string -&gt; Async&lt;obj&gt;<br /><br />Full name: Farango.Documents.replaceDocument</div>
+<div class="tip" id="fs23">val deleteDocument : connection:&#39;a -&gt; collection:string -&gt; key:string -&gt; Async&lt;obj&gt;<br /><br />Full name: Farango.Documents.deleteDocument</div>
+<div class="tip" id="fs24">val createDocuments : (&#39;a -&gt; string -&gt; string -&gt; Async&lt;obj&gt;)<br /><br />Full name: Farango.Documents.createDocuments</div>
+<div class="tip" id="fs25">module Collections<br /><br />from Farango</div>
+<div class="tip" id="fs26">val allDocuments : connection:&#39;a -&gt; collection:string -&gt; skip:int option -&gt; limit:int option -&gt; batchSize:int option -&gt; Async&lt;&#39;b&gt;<br /><br />Full name: Farango.Collections.allDocuments</div>
+<div class="tip" id="fs27">union case Option.None: Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs28">val allDocumentsSequence : connection:&#39;a -&gt; collection:string -&gt; skip:int option -&gt; limit:int option -&gt; batchSize:int option -&gt; AsyncSeq&lt;&#39;b&gt;<br /><br />Full name: Farango.Collections.allDocumentsSequence</div>
 
         </div>
         <div class="span1"></div>

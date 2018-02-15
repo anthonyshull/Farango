@@ -35,8 +35,7 @@ Connections are made asynchronously and return a `Result<Connection, string>`.
 #load "../Farango/Farango.Connection.fs"
 open Farango.Connection
 
-// let connection = connect "http[s]://[username]:[password]@[host]:[port]/[database]" |> Async.RunSynchronously
-let connection = connect "http://anthonyshull:password@localhost:8529/auth" |> Async.RunSynchronously
+let connection = connect "http[s]://[username]:[password]@[host]:[port]/[database]" |> Async.RunSynchronously
 
 (**
 ### Results
@@ -103,19 +102,14 @@ async {
   match connection with
   | Ok connection ->
     
-    // createDocument :: Connection -> string -> string -> string
     let! createdDocument = createDocument connection "users" "{\"_key\":\"12345\"}"
 
-    // getDocument :: Connection -> string -> string -> string
     let! document = getDocument connection "users" "12345"
 
-    // updateDocument :: Connection -> string -> string -> string -> string
     let! updatedDocument = updateDocument connection "users" "12345" "{\"username\":\"name\"}"
 
-    // replaceDocument :: Connection -> string -> string -> string -> string
     let! replacedDocument = replaceDocument connection "users" "12345" "{\"username\":\"user\",\"password\":\"pass\"}"
 
-    // deleteDocument :: Connection -> string -> string
     return! deleteDocument connection "users" "newuser"
 
   | Error error -> return Error error
