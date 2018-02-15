@@ -10,7 +10,7 @@ open FSharp.Literate
 open System.IO
 
 let script = Path.Combine(__SOURCE_DIRECTORY__, "./docs/index.fsx")
-let template = Path.Combine(__SOURCE_DIRECTORY__, "./packages/FSharp.Formatting/literate/templates/template-file.html")
+let template = Path.Combine(__SOURCE_DIRECTORY__, "./docs/template.html")
 Literate.ProcessScriptFile(script, template)
 
 // --------------------------------------------------------------------------------------
