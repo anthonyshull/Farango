@@ -1,7 +1,9 @@
 (**
 Farango
 =======
+
 <hr />
+
 Farango is a native F# client for [ArangoDB](https://www.arangodb.com/).
 
 It was developed to fulfill three requirements.

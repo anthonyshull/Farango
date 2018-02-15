@@ -93,7 +93,7 @@ let rec private batchCursor (connection: Connection) (cursor: string) = asyncSeq
       yield! batchCursor connection cursor
 }
 
-let queryBatch (connection: Connection) (query: string) (batchSize: int option) = asyncSeq {
+let querySequenceBatch (connection: Connection) (query: string) (batchSize: int option) = asyncSeq {
   let! initialResult = getQuery connection query batchSize
   match initialResult with
   | Error error -> yield Some (Error error)
@@ -110,7 +110,7 @@ let queryBatch (connection: Connection) (query: string) (batchSize: int option) 
 }
 
 let querySequence (connection: Connection) (query: string) (batchSize: int option) =
-  queryBatch connection query batchSize
+  querySequenceBatch connection query batchSize
   |> AsyncSeq.takeWhile (fun x ->
     match x with
     | Some _ -> true
@@ -121,5 +121,5 @@ let querySequence (connection: Connection) (query: string) (batchSize: int optio
     | Some results ->
       results
     | None ->
-      Error "No results found."
+      Error ""
   )

@@ -9,7 +9,7 @@ open Fake
 open FSharp.Literate
 open System.IO
 
-let script = Path.Combine(__SOURCE_DIRECTORY__, "./Farango/docs/Documentation.fsx")
+let script = Path.Combine(__SOURCE_DIRECTORY__, "./Farango/docs/index.fsx")
 let template = Path.Combine(__SOURCE_DIRECTORY__, "./packages/FSharp.Formatting/literate/templates/template-file.html")
 Literate.ProcessScriptFile(script, template)
 

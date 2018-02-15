@@ -20,5 +20,5 @@ match connection with
 | Ok connection ->
   querySequence connection "FOR t IN tokens RETURN t" (Some 3)
   |> AsyncSeq.iter (printfn "\n*** %A ***\n")
-  |> Async.RunSynchronously
+  |> Async.Start
 | _ -> ()
