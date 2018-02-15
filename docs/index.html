@@ -54,7 +54,7 @@ Currently, that means that you can CRUD a document as well as query the database
 <span class="l">3: </span>
 <span class="l">4: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#load</span> <span class="s">&quot;../Farango.Connection.fs&quot;</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#load</span> <span class="s">&quot;../Farango/Farango.Connection.fs&quot;</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">Farango</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">Connection</span>
 
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">connection</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="f">connect</span> <span class="s">&quot;http://username:password@localhost:[port]/database&quot;</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="f">RunSynchronously</span>
@@ -74,7 +74,7 @@ If no batchSize is given then the default 1,000 is used.</p>
 <span class="l">8: </span>
 <span class="l">9: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#load</span> <span class="s">&quot;../Farango.Queries.fs&quot;</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#load</span> <span class="s">&quot;../Farango/Farango.Queries.fs&quot;</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 7)" onmouseover="showTip(event, 'fs1', 7)" class="i">Farango</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="i">Queries</span>
 
 <span class="k">match</span> <span onmouseout="hideTip(event, 'fs3', 9)" onmouseover="showTip(event, 'fs3', 9)" class="i">connection</span> <span class="k">with</span>
@@ -99,7 +99,7 @@ Again, if no batchSize is given the default 1,000 is used.</p>
 <span class="l">8: </span>
 <span class="l">9: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;../../packages/FSharp.Control.AsyncSeq/lib/net45/FSharp.Control.AsyncSeq.dll&quot;</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;../packages/FSharp.Control.AsyncSeq/lib/net45/FSharp.Control.AsyncSeq.dll&quot;</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs10', 16)" onmouseover="showTip(event, 'fs10', 16)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 17)" onmouseover="showTip(event, 'fs11', 17)" class="i">Control</span>
 
 <span class="k">match</span> <span onmouseout="hideTip(event, 'fs3', 18)" onmouseover="showTip(event, 'fs3', 18)" class="i">connection</span> <span class="k">with</span>

@@ -28,7 +28,7 @@ We are, of course, open to community involvement.
 
 Connections are made asynchronously and return a `Result<Connection, string>`.
 *)
-#load "../Farango.Connection.fs"
+#load "../Farango/Farango.Connection.fs"
 open Farango.Connection
 
 let connection = connect "http://username:password@localhost:[port]/database" |> Async.RunSynchronously
@@ -39,7 +39,7 @@ let connection = connect "http://username:password@localhost:[port]/database" |>
 Queries are made in batches and the entire result list is returned.
 If no batchSize is given then the default 1,000 is used.
 *)
-#load "../Farango.Queries.fs"
+#load "../Farango/Farango.Queries.fs"
 open Farango.Queries
 
 match connection with
@@ -55,7 +55,7 @@ match connection with
 Queries can be returned in batches as well using the [AsyncSeq](https://fsprojects.github.io/FSharp.Control.AsyncSeq/library/AsyncSeq.html) library.
 Again, if no batchSize is given the default 1,000 is used.
 *)
-#r "../../packages/FSharp.Control.AsyncSeq/lib/net45/FSharp.Control.AsyncSeq.dll"
+#r "../packages/FSharp.Control.AsyncSeq/lib/net45/FSharp.Control.AsyncSeq.dll"
 open FSharp.Control
 
 match connection with
