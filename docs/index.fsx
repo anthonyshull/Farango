@@ -35,7 +35,8 @@ Connections are made asynchronously and return a `Result<Connection, string>`.
 #load "../Farango/Farango.Connection.fs"
 open Farango.Connection
 
-let connection = connect "http[s]://[username]:[password]@[host]:[port]/[database]" |> Async.RunSynchronously
+// let connection = connect "http[s]://[username]:[password]@[host]:[port]/[database]" |> Async.RunSynchronously
+let connection = connect "http://anthonyshull:password@localhost:8529/auth" |> Async.RunSynchronously
 
 (**
 ### Results
@@ -82,7 +83,7 @@ async {
   | Ok connection ->
 
     querySequence connection "FOR u IN users RETURN u" (Some 100)
-    |> AsyncSeq.iter (printfn "\n*** %A ***\n")
+    |> AsyncSeq.iter (printfn "\n%A\n")
     |> Async.Start
 
   | _ -> ()
@@ -91,7 +92,8 @@ async {
 (**
 ### Documents
 
-You can CRUD documents. Pass a serialized JSON string in as the document.
+You can CRUD documents by passing a serialized JSON string in as the document.
+For example, if we wanted to create, update, replace, and then delete a user from the users collection.
 
 *)
 #load "../Farango/Farango.Documents.fs"
@@ -102,19 +104,71 @@ async {
   | Ok connection ->
     
     // createDocument :: Connection -> string -> string -> string
-    let! createdDocument = createDocument connection "users" "{\"_key\":\"newuser\"}"
+    let! createdDocument = createDocument connection "users" "{\"_key\":\"12345\"}"
 
     // getDocument :: Connection -> string -> string -> string
-    let! document = getDocument connection "users" "newuser"
+    let! document = getDocument connection "users" "12345"
 
     // updateDocument :: Connection -> string -> string -> string -> string
-    let! updatedDocument = updateDocument connection "users" "newuser" "{\"password\":\"pass\"}"
+    let! updatedDocument = updateDocument connection "users" "12345" "{\"username\":\"name\"}"
 
     // replaceDocument :: Connection -> string -> string -> string -> string
-    let! replacedDocument = replaceDocument connection "users" "newuser" "{\"username\":\"user\"}"
-    
+    let! replacedDocument = replaceDocument connection "users" "12345" "{\"username\":\"user\",\"password\":\"pass\"}"
+
     // deleteDocument :: Connection -> string -> string
     return! deleteDocument connection "users" "newuser"
 
   | Error error -> return Error error
-}
+} |> Async.RunSynchronously
+
+(**
+
+You can create multiple documents using `createDocuments`.
+Just pass in a serialized JSON string representing an array of documents.
+
+*)
+
+async {
+  match connection with
+  | Ok connection ->
+    
+    return! createDocuments connection "users" "[{\"username\":\"user\"},{\"username\":\"name\"}]"
+
+  | Error error -> return Error error
+} |> Async.RunSynchronously
+
+(**
+### Collections
+
+You can do basic queries on collections.
+`allDocuments` takes a connection, collection, optional skip, optional limit, and optional batchSize.
+
+*)
+#load "../Farango/Farango.Collections.fs"
+open Farango.Collections
+
+async {
+  match connection with
+  | Ok connection ->
+
+  return! allDocuments connection "users" None None None
+
+  | Error error -> return Error error
+} |> Async.RunSynchronously
+
+(**
+
+Of course, you can also get all documents as a sequence.
+
+*)
+
+async {
+  match connection with
+  | Ok connection ->
+
+    allDocumentsSequence connection "users" None None None
+    |> AsyncSeq.iter (printfn "\n%A\n")
+    |> Async.Start
+
+  | Error error -> ()
+} |> Async.RunSynchronously
