@@ -5,9 +5,19 @@ NUGET
       FSharp.Core (>= 4.2.3)
       Newtonsoft.Json (>= 10.0.3)
     FAKE (4.64.4)
+    FSharp.Compiler.Service (2.0.0.6)
+    FSharp.Control.AsyncSeq (2.0.20)
+      FSharp.Core (>= 3.1.2)
+      System.ValueTuple (>= 4.4)
     FSharp.Core (4.3.3)
     FSharp.Data (2.4.4)
+    FSharp.Formatting (2.14.4)
+      FSharp.Compiler.Service (2.0.0.6)
+      FSharpVSPowerTools.Core (>= 2.3 < 2.4)
+    FSharpVSPowerTools.Core (2.3)
+      FSharp.Compiler.Service (>= 2.0.0.3)
     Newtonsoft.Json (10.0.3)
+    System.ValueTuple (4.4)
 
 GROUP Build
 

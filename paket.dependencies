@@ -3,8 +3,10 @@ source https://www.nuget.org/api/v2
 framework: >= net461
 nuget Fable.JsonConverter
 nuget FAKE
+nuget FSharp.Control.AsyncSeq
 nuget FSharp.Core
 nuget FSharp.Data
+nuget FSharp.Formatting
 nuget Newtonsoft.Json
 
 group Build

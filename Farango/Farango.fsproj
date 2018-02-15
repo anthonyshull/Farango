@@ -11,7 +11,6 @@
     <Compile Include="Farango.Collections.fs" />
     <Compile Include="Farango.Documents.fs" />
     <Compile Include="Farango.Queries.fs" />
-    <Compile Include="Farango.Traversals.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />

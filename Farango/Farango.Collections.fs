@@ -28,17 +28,18 @@ let private deserializeCount (json: string) =
 
 let loadCollection (connection: Connection) (collection: string) (count: bool) = async {
   let localPath = sprintf "_db/%s/_api/collection/%s/load" connection.Database collection
-  let body = 
+  return!
     Map.empty
     |> setCount count
     |> serialize
-  return! put connection localPath body
+    |> put connection localPath
 }
 
 let unloadCollection (connection: Connection) (collection: string) = async {
   let localPath = sprintf "_db/%s/_api/collection/%s/unload" connection.Database collection
-  let body = Map.empty |> serialize
-  return! put connection localPath body
+  return!
+    emptyBody
+    |> put connection localPath
 }
 
 let getCollectionInformation (connection: Connection) (collection: string) = async {
@@ -58,8 +59,10 @@ let getCollectionStats (connection: Connection) (collection: string) = async {
 
 let getDocumentCount (connection: Connection) (collection: string) = async {
   let localPath = sprintf "_db/%s/_api/collection/%s/count" connection.Database collection
-  let! countDocument = get connection localPath
-  return Result.bind deserializeCount countDocument
+  return
+    get connection localPath
+    |> Async.RunSynchronously
+    |> Result.bind deserializeCount
 }
 
 let getAllDocuments (connection: Connection) (collection: string) (skip: int option) (limit: int option) = async {

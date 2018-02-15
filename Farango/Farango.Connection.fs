@@ -1,8 +1,9 @@
 module Farango.Connection
 
 open System
-open Newtonsoft.Json
 open FSharp.Data
+
+open Farango.Json
 
 type Jwt = string
 
@@ -38,13 +39,6 @@ let private createConnection (uri: string): Result<Connection, string> =
     Ok { Scheme = scheme; User = user; Pass = pass; Host = uri.Host; Port = uri.Port; Database = database ; Jwt = None }
   with
     | _ -> Result.Error "Could not parse URI into Connection."
-
-let private parseJwtResponse (jsonString: string): Result<string, exn> =
-  try
-    let jwt = JsonConvert.DeserializeObject<JwtResponse> jsonString
-    Ok jwt.jwt
-  with
-    | ex -> Error ex
 
 let private handleResponse (response: HttpResponse) =
   match response.StatusCode with
@@ -92,9 +86,9 @@ let connect (uri: string) : Async<Result<Connection, string>> = async {
     let! response = post connection "_open/auth" body
     match response with
     | Ok response ->
-      let jwt = parseJwtResponse response
-      match jwt with
+      let jwtResponse = deserialize<JwtResponse> response
+      match jwtResponse with
       | Error _ -> return Ok connection
-      | Ok jwt -> return Ok { connection with Jwt = Some jwt}
+      | Ok jwtResponse -> return Ok { connection with Jwt = Some jwtResponse.jwt}
     | _ -> return Error "Auth response code is not 200."
 }
