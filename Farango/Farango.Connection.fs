@@ -4,22 +4,7 @@ open System
 open FSharp.Data
 
 open Farango.Json
-
-type Jwt = string
-
-type JwtResponse = {
-  jwt: string
-}
-
-type Connection = {
-  Scheme: string
-  User: string
-  Pass: string
-  Host: string
-  Port: int
-  Database: string
-  Jwt: Jwt option
-}
+open Farango.Types
 
 let private connectionString (connection: Connection) =
   sprintf "%s://%s:%d/" connection.Scheme connection.Host connection.Port
@@ -42,7 +27,7 @@ let private createConnection (uri: string): Result<Connection, string> =
 
 let private handleResponse (response: HttpResponse) =
   match response.StatusCode with
-  | 200 | 201 -> parseResponse response.Body
+  | 200 | 201 | 202 -> parseResponse response.Body
   | _ -> Error (sprintf "Connection failed with %d: %s" response.StatusCode response.ResponseUrl)
 
 let private query (method: string) (connection: Connection) (localPath: string) = async {
@@ -56,6 +41,8 @@ let private query (method: string) (connection: Connection) (localPath: string) 
     let! response = Http.AsyncRequest(requestUri, httpMethod = method, headers = headers, silentHttpErrors = true)
     return handleResponse response
 }
+
+let delete = query HttpMethod.Delete
 
 let get = query HttpMethod.Get
 

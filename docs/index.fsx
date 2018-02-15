@@ -10,10 +10,9 @@ It was developed to fulfill three requirements.
 
   1. We prefer a bespoke idiomatic F# client over MacGyvering C# libraries.
   2. We want to leverage async to keep our applications non-blocking.
-That includes using AsyncSeq to return results as they become available.
+  That includes using AsyncSeq to return results as they become available.
   3. As developers, we don't want to be pigeonholed into receiving results in a given construct (Maps or Dictionaries) or with a given libary (Newtonsoft or Chiron.)
-Ergo, results are returned as either a JSON string (single result) or a List of JSON strings (multiple results).
-We leave it up to client users how they want to parse results.
+  We leave it up to client users how they want to parse results.
 
 That being said, Farango is currently a library of convenience.
 We implement features as we need them.
@@ -26,45 +25,96 @@ We are, of course, open to community involvement.
 (**
 ### Connections
 
+We use dependency injection and include a Connection parameter in every database call.
+This makes it easier to test the library as well as any implmentation thereof.
+It also allows you to create multiple connections (to multiple databases or even Arango instances.)
+
 Connections are made asynchronously and return a `Result<Connection, string>`.
+
 *)
 #load "../Farango/Farango.Connection.fs"
 open Farango.Connection
 
-let connection = connect "http://username:password@localhost:[port]/database" |> Async.RunSynchronously
+let connection = connect "http[s]://[username]:[password]@[host]:[port]/[database]" |> Async.RunSynchronously
+
+(**
+### Results
+
+Results to all commands and queries are given as JSON strings wrapped in a result.
+If the result is a single document it will have the form `Result<string, string>`.
+If the result is a list of documents it will have the form `Result<string list, string>`.
+`getDocumentCount` returns `Result<int, string>` because, you know, that makes sense.
+
+*)
 
 (**
 ### Queries
 
-Queries are made in batches and the entire result list is returned.
-If no batchSize is given then the default 1,000 is used.
+Queries are given a connection, query string, and an optional batchSize.
+Queries return all results at once even if the background requests are batched as per batchSize.
+
 *)
 #load "../Farango/Farango.Queries.fs"
 open Farango.Queries
 
-match connection with
-| Ok connection ->
-  query connection "FOR u IN users RETURN u" (Some 100)
-  |> Async.RunSynchronously
-| Error error ->
-  Error error
+async {
+  match connection with
+  | Ok connection ->
+
+    return! query connection "FOR u IN users RETURN u" (Some 100)
+
+  | Error error -> return Error error
+} |> Async.RunSynchronously
 
 (**
 ### Query Sequences
 
-Queries can be returned in batches as well using the [AsyncSeq](https://fsprojects.github.io/FSharp.Control.AsyncSeq/library/AsyncSeq.html) library.
-Again, if no batchSize is given the default 1,000 is used.
+You can also use query results as a sequence. They are also given a connection, query, and optional batchSize.
+You will need to use the [AsyncSeq](https://fsprojects.github.io/FSharp.Control.AsyncSeq/library/AsyncSeq.html) library to manipulate the sequence.
+Here, batchSize will determine how many results are returned in each iteration of the sequence.
+
 *)
 #r "../packages/FSharp.Control.AsyncSeq/lib/net45/FSharp.Control.AsyncSeq.dll"
 open FSharp.Control
 
-match connection with
-| Ok connection ->
-  querySequence connection "FOR u IN users RETURN u" (Some 100)
-  |> AsyncSeq.iter (printfn "\n*** %A ***\n")
-  |> Async.Start
-| _ -> ()
+async {
+  match connection with
+  | Ok connection ->
+
+    querySequence connection "FOR u IN users RETURN u" (Some 100)
+    |> AsyncSeq.iter (printfn "\n*** %A ***\n")
+    |> Async.Start
+
+  | _ -> ()
+} |> Async.RunSynchronously
 
 (**
-Some ending text here.
+### Documents
+
+You can CRUD documents. Pass a serialized JSON string in as the document.
+
 *)
+#load "../Farango/Farango.Documents.fs"
+open Farango.Documents
+
+async {
+  match connection with
+  | Ok connection ->
+    
+    // createDocument :: Connection -> string -> string -> string
+    let! createdDocument = createDocument connection "users" "{\"_key\":\"newuser\"}"
+
+    // getDocument :: Connection -> string -> string -> string
+    let! document = getDocument connection "users" "newuser"
+
+    // updateDocument :: Connection -> string -> string -> string -> string
+    let! updatedDocument = updateDocument connection "users" "newuser" "{\"password\":\"pass\"}"
+
+    // replaceDocument :: Connection -> string -> string -> string -> string
+    let! replacedDocument = replaceDocument connection "users" "newuser" "{\"username\":\"user\"}"
+    
+    // deleteDocument :: Connection -> string -> string
+    return! deleteDocument connection "users" "newuser"
+
+  | Error error -> return Error error
+}

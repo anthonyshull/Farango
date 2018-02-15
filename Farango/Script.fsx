@@ -5,20 +5,40 @@
 
 open FSharp.Control
 
+#load "Farango.Types.fs"
 #load "Farango.Json.fs"
-
+#load "Farango.Setters.fs"
 #load "Farango.Connection.fs"
-open Farango.Connection
-
-#load "Farango.Collections.fs"
-
+#load "Farango.Cursor.fs"
 #load "Farango.Queries.fs"
+#load "Farango.Collections.fs"
+#load "Farango.Documents.fs"
+
+open Farango.Connection
+open Farango.Collections
 open Farango.Queries
+open Farango.Documents
 
 let connection = connect "http://anthonyshull:password@localhost:8529/auth" |> Async.RunSynchronously
+
+(*
 match connection with
 | Ok connection ->
-  querySequence connection "FOR t IN tokens RETURN t" (Some 3)
+  query connection "FOR t IN tokens RETURN t" (Some 3) |> Async.RunSynchronously
+| Error error -> Error error
+*)
+
+match connection with
+| Ok connection ->
+  allDocumentsSequence connection "tokens" (Some 2) (Some 5) (Some 3)
   |> AsyncSeq.iter (printfn "\n*** %A ***\n")
   |> Async.Start
 | _ -> ()
+(*
+match connection with
+| Ok connection ->
+  documentCount connection "tokens" |> Async.RunSynchronously |> ignore
+  allDocuments connection "tokens" None None None |> Async.RunSynchronously |> ignore
+  deleteDocument connection "tokens" "1676442" |> Async.RunSynchronously
+| Error error -> Error error
+*)

@@ -1,24 +1,13 @@
 module Farango.Collections
 
+open FSharp.Control
 open Newtonsoft.Json
 
-open Farango.Json
 open Farango.Connection
-
-let setCollection (collection: string) (map: Map<string, obj>) =
-  map |> Map.add "collection" (box<string> collection)
-
-let private setCount (count: bool) (map: Map<string, obj>) = 
-  map |> Map.add "count" (box<bool> count)
-
-let private setSkip (skip: int) (map: Map<string, obj>) =
-  map |> Map.add "skip" (box<int> skip)
-
-let private setLimit (limit: int) (map: Map<string, obj>) =
-  map |> Map.add "count" (box<int> limit)
-
-let private setType (typ: string) (map: Map<string, obj>) =
-  map |> Map.add "type" (box<string> typ)
+open Farango.Cursor
+open Farango.Json
+open Farango.Setters
+open Farango.Types
 
 let private deserializeCount (json: string) =
   let count = JsonConvert.DeserializeObject<Map<string, obj>> json
@@ -26,6 +15,7 @@ let private deserializeCount (json: string) =
   | Some count -> count |> unbox<int64> |> int |> Ok
   | None -> Error "Could not deserialize collection count."
 
+(* DONE *)
 let loadCollection (connection: Connection) (collection: string) (count: bool) = async {
   let localPath = sprintf "_db/%s/_api/collection/%s/load" connection.Database collection
   return!
@@ -35,6 +25,7 @@ let loadCollection (connection: Connection) (collection: string) (count: bool) =
     |> put connection localPath
 }
 
+(* DONE *)
 let unloadCollection (connection: Connection) (collection: string) = async {
   let localPath = sprintf "_db/%s/_api/collection/%s/unload" connection.Database collection
   return!
@@ -42,42 +33,64 @@ let unloadCollection (connection: Connection) (collection: string) = async {
     |> put connection localPath
 }
 
-let getCollectionInformation (connection: Connection) (collection: string) = async {
-  let localPath = sprintf "_db/%s/_api/collection/%s" connection.Database collection
-  return! get connection localPath
-}
-
-let getCollectionProperties (connection: Connection) (collection: string) = async {
-  let localPath = sprintf "_db/%s/_api/collection/%s/properties" connection.Database collection
-  return! get connection localPath
-}
-
-let getCollectionStats (connection: Connection) (collection: string) = async {
-  let localPath = sprintf "_db/%s/_api/collection/%s/figures" connection.Database collection
-  return! get connection localPath
-}
-
-let getDocumentCount (connection: Connection) (collection: string) = async {
+(* DONE *)
+let documentCount (connection: Connection) (collection: string) = async {
   let localPath = sprintf "_db/%s/_api/collection/%s/count" connection.Database collection
+  let! serializedResult = get connection localPath
   return
-    get connection localPath
-    |> Async.RunSynchronously
+    serializedResult
     |> Result.bind deserializeCount
 }
 
-let getAllDocuments (connection: Connection) (collection: string) (skip: int option) (limit: int option) = async {
+(* DONE *)
+let allDocuments (connection: Connection) (collection: string) (skip: int option) (limit: int option)  (batchSize: int option)= async {
   let localPath = sprintf "_db/%s/_api/simple/all" connection.Database
-  let body =
+ 
+  let! firstResult =
     Map.empty
     |> setCollection collection
-    |> setSkip (defaultArg skip 0)
-    |> setLimit (defaultArg limit 0)
+    |> setSkip skip
+    |> setLimit limit
+    |> setBatchSize batchSize
     |> serialize
-  let! result = put connection localPath body
-  return result 
+    |> getFirstResult put connection localPath
+
+  return! moreResults connection firstResult
 }
 
-let getAllDocumentPaths (connection: Connection) (collection: string) = async {
+(* DONE *)
+let private allDocumentsSequenceBatch (connection: Connection) (collection: string) (skip: int option) (limit: int option) (batchSize: int option) = asyncSeq {
+  let localPath = sprintf "_db/%s/_api/simple/all" connection.Database
+  
+  let! firstResult =
+    Map.empty
+    |> setCollection collection
+    |> setSkip skip
+    |> setLimit limit
+    |> setBatchSize batchSize
+    |> serialize
+    |> getFirstResult put connection localPath
+
+  yield! moreSequenceResults connection firstResult
+}
+
+(* DONE *)
+let allDocumentsSequence (connection: Connection) (collection: string) (skip: int option) (limit: int option) (batchSize: int option) =
+  allDocumentsSequenceBatch connection collection skip limit batchSize
+  |> AsyncSeq.takeWhile (fun x ->
+    match x with
+    | Some _ -> true
+    | None -> false
+  )
+  |> AsyncSeq.map (fun x ->
+    match x with
+    | Some results ->
+      results
+    | None ->
+      Error ""
+  )
+
+let allDocumentPaths (connection: Connection) (collection: string) = async {
   let localPath = sprintf "_db/%s/_api/simple/all-keys" connection.Database
   let body =
     Map.empty
@@ -86,7 +99,7 @@ let getAllDocumentPaths (connection: Connection) (collection: string) = async {
   return! put connection localPath body
 }
 
-let getAllDocumentKeys (connection: Connection) (collection: string) = async {
+let allDocumentKeys (connection: Connection) (collection: string) = async {
   let localPath = sprintf "_db/%s/_api/simple/all-keys" connection.Database
   let body =
     Map.empty
@@ -96,12 +109,23 @@ let getAllDocumentKeys (connection: Connection) (collection: string) = async {
   return! put connection localPath body
 }
 
-let getAllDocumentIds (connection: Connection) (collection: string) = async {
+let allDocumentIds (connection: Connection) (collection: string) = async {
   let localPath = sprintf "_db/%s/_api/simple/all-keys" connection.Database
   let body =
     Map.empty
     |> setCollection collection
     |> setType "id"
+    |> serialize
+  return! put connection localPath body
+}
+
+
+let documentsByKeys (connection: Connection) (collection: string) (keys: List<string>) = async {
+  let localPath = sprintf "_db/%s/_api/simple/lookup-by-keys" connection.Database
+  let body =
+    Map.empty
+    |> setCollection collection
+    |> setKeys keys
     |> serialize
   return! put connection localPath body
 }
