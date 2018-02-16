@@ -1,5 +1,8 @@
 # Created by https://www.gitignore.io/api/f#,linux,windows,macos,vim,emacs,visualstudio,visualstudiocode
 
+Farango/Script.fsx
+*.nuspec
+
 ### F# ###
 lib/debug
 lib/release
