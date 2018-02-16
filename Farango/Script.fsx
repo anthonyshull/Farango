@@ -21,19 +21,19 @@ open Farango.Documents
 
 let connection = connect "http://anthonyshull:password@localhost:8529/auth" |> Async.RunSynchronously
 
-(*
 match connection with
 | Ok connection ->
-  query connection "FOR t IN tokens RETURN t" (Some 3) |> Async.RunSynchronously
+  documentsByKeys connection "tokens" ["2115848"; "2116383"; "2116379"] |> Async.RunSynchronously
 | Error error -> Error error
-*)
 
+(*
 match connection with
 | Ok connection ->
   allDocumentsSequence connection "tokens" (Some 2) (Some 5) (Some 3)
   |> AsyncSeq.iter (printfn "\n*** %A ***\n")
   |> Async.Start
 | _ -> ()
+*)
 (*
 match connection with
 | Ok connection ->

@@ -23,3 +23,15 @@ type BatchResponse = {
   hasMore: bool
   id: string option
 }
+
+type GenericResponse = {
+  result: List<string>
+}
+
+type CountResponse = {
+  count: int
+}
+
+type KeyResponse = {
+  documents: List<Map<string, obj>>
+}

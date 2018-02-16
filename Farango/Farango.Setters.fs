@@ -16,8 +16,10 @@ let setLimit (limit: int option) (map: Map<string, obj>) =
   | Some limit -> map |> Map.add "limit" (box<int> limit)
   | None -> map
 
-let setType (typ: string) (map: Map<string, obj>) =
-  map |> Map.add "type" (box<string> typ)
+let setType (typ: string option) (map: Map<string, obj>) =
+  match typ with
+  | Some typ -> map |> Map.add "type" (box<string> typ)
+  | None -> map
 
 let setKeys (keys: List<string>) (map: Map<string, obj>) =
   map |> Map.add "keys" (box<List<string>> keys)
