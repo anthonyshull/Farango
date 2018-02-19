@@ -28,9 +28,8 @@ Target "Clean" (fun _ ->
 )
 
 Target "Build" (fun _ ->
-  !! "**/Farango.fsproj"
-  |> MSBuildReleaseExt buildDir [("Verbosity", "Quiet")] "Build"
-  |> ignore
+  let result = Shell.Exec("dotnet", "msbuild /p:Configuration=Release Farango.fsproj", "./Farango/")
+  if result <> 0 then failwithf "Farango failed to compile with exit code %d" result
 )
 
 // --------------------------------------------------------------------------------------

@@ -108,7 +108,7 @@ let documentsByKeys (connection: Connection) (collection: string) (keys: List<st
     |> setKeys keys
     |> serialize
     |> put connection localPath
-  printfn "%A" result
+
   let deserializedResult = Result.bind deserialize<KeyResponse> result
   return
     Result.map (fun x -> x.documents) deserializedResult

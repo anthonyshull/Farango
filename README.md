@@ -14,3 +14,11 @@ We are, of course, open to community involvement.
 
 * Create, read, replace, update, and delete documents.
 * Query in batches and sequences.
+
+**0.0.2**
+
+* Documentation updates
+
+**0.0.3**
+
+* Full test suite
