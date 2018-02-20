@@ -12,7 +12,7 @@ let private connectionString (connection: Connection) =
 let private parseResponse (body: HttpResponseBody): Result<string, string> =
   match body with
   | Text text -> Ok text
-  | _ -> Error "Response could not be interpreted as a string."
+  | Binary bytes -> Ok (System.Text.Encoding.Default.GetString bytes)
 
 let private createConnection (uri: string): Result<Connection, string> =
   try

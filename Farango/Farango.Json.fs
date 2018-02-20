@@ -10,6 +10,7 @@ let serializerSettings =
     DateTimeZoneHandling = DateTimeZoneHandling.Utc,
     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
     Formatting = Formatting.Indented,
+    NullValueHandling = NullValueHandling.Ignore,
     Converters = [|jsonConverter|]
   )
 

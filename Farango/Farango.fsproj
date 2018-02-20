@@ -14,6 +14,7 @@
     <Compile Include="Farango.Queries.fs" />
     <Compile Include="Farango.Collections.fs" />
     <Compile Include="Farango.Documents.fs" />
+    <Compile Include="Farango.Cdc.fs" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

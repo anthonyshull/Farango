@@ -21,4 +21,8 @@ We are, of course, open to community involvement.
 
 **0.0.3**
 
+* Change data capture
+
+**0.0.4**
+
 * Full test suite

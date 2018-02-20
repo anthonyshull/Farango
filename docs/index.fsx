@@ -20,13 +20,14 @@ Currently, that means that you can CRUD a document as well as query the database
 
 We are, of course, open to community involvement.
 
+*Pro tip* Use `paket generate-load-scripts` to avoid manually loading all of Farango's dependencies in your .fsx files
 *)
 
 (**
 ### Connections
 
 We use dependency injection and include a Connection parameter in every database call.
-This makes it easier to test the library as well as any implmentation thereof.
+This makes it easier to test the library as well as any implementation thereof.
 It also allows you to create multiple connections (to multiple databases or even Arango instances.)
 
 Connections are made asynchronously and return a `Result<Connection, string>`.
@@ -50,7 +51,7 @@ If the result is a list of documents it will have the form `Result<string list, 
 (**
 ### Queries
 
-Queries are given a connection, query string, and an optional batchSize.
+Queries are given a Connection, query (string), and an optional batchSize (int option.)
 Queries return all results at once even if the background requests are batched as per batchSize.
 
 *)
@@ -69,7 +70,8 @@ async {
 (**
 ### Query Sequences
 
-You can also use query results as a sequence. They are also given a connection, query, and optional batchSize.
+You can also use query results as a sequence.
+They are also given a connection, query, and optional batchSize like a regular query.
 You will need to use the [AsyncSeq](https://fsprojects.github.io/FSharp.Control.AsyncSeq/library/AsyncSeq.html) library to manipulate the sequence.
 Here, batchSize will determine how many results are returned in each iteration of the sequence.
 
@@ -166,3 +168,35 @@ async {
 
   | Error error -> ()
 } |> Async.RunSynchronously
+
+(**
+### Change data capture
+
+You can poll an Arango instance and be notified when documents are inserted/updated or deleted.
+A Subscriber is a Change (InsertUpdate | Delete), a Collection (string option), and a function from Message -> unit.
+Messages have the same Change and Collection fields as Subscribers.
+Messages also have Data which is a JSON string.
+This will hold the document in question.
+You can parse it however you wish.
+
+You can subscribe to a single collection with Collection = Some "collection" or subscribe to all collections with Collection = None.
+You'll see below that we are listening for InsertUpdate events on the users collection and Delete events on every collection in the database.
+
+To start polling just pass a Connection and a list of Subscribers to the start function.
+
+We use mutually recursive async functions to poll the database.
+A simple backoff is used and a second is added between polls.
+Once new data is found, the backoff resets to zero.
+There is a maximum backoff time of 10 seconds.
+
+*)
+
+#load "../Farango/Farango.Cdc.fs"
+open Farango.Cdc
+
+match connection with
+| Ok connection ->
+  let sub1 = { Change = InsertUpdate; Collection = Some "users"; Fn = printfn "\n%A\n" }
+  let sub2 = { Change = Delete; Collection = None; Fn = printfn "\n%A\n" }
+  start connection [sub1; sub2]
+| Error _ -> ()
