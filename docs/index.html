@@ -46,9 +46,10 @@ We leave it up to client users how they want to parse results.
 We implement features as we need them.
 Currently, that means that you can CRUD a document as well as query the database.</p>
 <p>We are, of course, open to community involvement.</p>
+<p><em>Pro tip</em> Use <code>paket generate-load-scripts</code> to avoid manually loading all of Farango's dependencies in your .fsx files</p>
 <h3>Connections</h3>
 <p>We use dependency injection and include a Connection parameter in every database call.
-This makes it easier to test the library as well as any implmentation thereof.
+This makes it easier to test the library as well as any implementation thereof.
 It also allows you to create multiple connections (to multiple databases or even Arango instances.)</p>
 <p>Connections are made asynchronously and return a <code>Result&lt;Connection, string&gt;</code>.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
@@ -69,7 +70,7 @@ If the result is a single document it will have the form <code>Result&lt;string,
 If the result is a list of documents it will have the form <code>Result&lt;string list, string&gt;</code>.
 <code>getDocumentCount</code> returns <code>Result&lt;int, string&gt;</code> because, you know, that makes sense.</p>
 <h3>Queries</h3>
-<p>Queries are given a connection, query string, and an optional batchSize.
+<p>Queries are given a Connection, query (string), and an optional batchSize (int option.)
 Queries return all results at once even if the background requests are batched as per batchSize.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -98,7 +99,8 @@ Queries return all results at once even if the background requests are batched a
 </tr>
 </table>
 <h3>Query Sequences</h3>
-<p>You can also use query results as a sequence. They are also given a connection, query, and optional batchSize.
+<p>You can also use query results as a sequence.
+They are also given a connection, query, and optional batchSize like a regular query.
 You will need to use the <a href="https://fsprojects.github.io/FSharp.Control.AsyncSeq/library/AsyncSeq.html">AsyncSeq</a> library to manipulate the sequence.
 Here, batchSize will determine how many results are returned in each iteration of the sequence.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
@@ -252,6 +254,42 @@ Just pass in a serialized JSON string representing an array of documents.</p>
 </code></pre></td>
 </tr>
 </table>
+<h3>Change data capture</h3>
+<p>You can poll an Arango instance and be notified when documents are inserted/updated or deleted.
+A Subscriber is a Change (InsertUpdate | Delete), a Collection (string option), and a function from Message -&gt; unit.
+Messages have the same Change and Collection fields as Subscribers.
+Messages also have Data which is a JSON string.
+This will hold the document in question.
+You can parse it however you wish.</p>
+<p>You can subscribe to a single collection with Collection = Some "collection" or subscribe to all collections with Collection = None.
+You'll see below that we are listening for InsertUpdate events on the users collection and Delete events on every collection in the database.</p>
+<p>To start polling just pass a Connection and a list of Subscribers to the start function.</p>
+<p>We use mutually recursive async functions to poll the database.
+A simple backoff is used and a second is added between polls.
+Once new data is found, the backoff resets to zero.
+There is a maximum backoff time of 10 seconds.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#load</span> <span class="s">&quot;../Farango/Farango.Cdc.fs&quot;</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 83)" onmouseover="showTip(event, 'fs1', 83)" class="i">Farango</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 84)" onmouseover="showTip(event, 'fs29', 84)" class="i">Cdc</span>
+
+<span class="k">match</span> <span onmouseout="hideTip(event, 'fs3', 85)" onmouseover="showTip(event, 'fs3', 85)" class="i">connection</span> <span class="k">with</span>
+| <span class="i">Ok</span> <span onmouseout="hideTip(event, 'fs3', 86)" onmouseover="showTip(event, 'fs3', 86)" class="i">connection</span> <span class="k">-&gt;</span>
+  <span class="k">let</span> <span class="i">sub1</span> <span class="o">=</span> { <span onmouseout="hideTip(event, 'fs30', 87)" onmouseover="showTip(event, 'fs30', 87)" class="i">Change</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs31', 88)" onmouseover="showTip(event, 'fs31', 88)" class="i">InsertUpdate</span>; <span class="i">Collection</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs10', 89)" onmouseover="showTip(event, 'fs10', 89)" class="i">Some</span> <span class="s">&quot;users&quot;</span>; <span class="i">Fn</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs16', 90)" onmouseover="showTip(event, 'fs16', 90)" class="i">printfn</span> <span class="s">&quot;</span><span class="e">\n</span><span class="s">%A</span><span class="e">\n</span><span class="s">&quot;</span> }
+  <span class="k">let</span> <span class="i">sub2</span> <span class="o">=</span> { <span onmouseout="hideTip(event, 'fs30', 91)" onmouseover="showTip(event, 'fs30', 91)" class="i">Change</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs32', 92)" onmouseover="showTip(event, 'fs32', 92)" class="i">Delete</span>; <span class="i">Collection</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs27', 93)" onmouseover="showTip(event, 'fs27', 93)" class="i">None</span>; <span class="i">Fn</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs16', 94)" onmouseover="showTip(event, 'fs16', 94)" class="i">printfn</span> <span class="s">&quot;</span><span class="e">\n</span><span class="s">%A</span><span class="e">\n</span><span class="s">&quot;</span> }
+  <span onmouseout="hideTip(event, 'fs33', 95)" onmouseover="showTip(event, 'fs33', 95)" class="i">start</span> <span onmouseout="hideTip(event, 'fs3', 96)" onmouseover="showTip(event, 'fs3', 96)" class="i">connection</span> [<span class="i">sub1</span>; <span class="i">sub2</span>]
+| <span class="i">Error</span> _ <span class="k">-&gt;</span> ()
+</code></pre></td>
+</tr>
+</table>
 
           <div class="tip" id="fs1">namespace Farango</div>
 <div class="tip" id="fs2">module Connection<br /><br />from Farango</div>
@@ -281,6 +319,11 @@ Just pass in a serialized JSON string representing an array of documents.</p>
 <div class="tip" id="fs26">val allDocuments : connection:&#39;a -&gt; collection:string -&gt; skip:int option -&gt; limit:int option -&gt; batchSize:int option -&gt; Async&lt;&#39;b&gt;<br /><br />Full name: Farango.Collections.allDocuments</div>
 <div class="tip" id="fs27">union case Option.None: Option&lt;&#39;T&gt;</div>
 <div class="tip" id="fs28">val allDocumentsSequence : connection:&#39;a -&gt; collection:string -&gt; skip:int option -&gt; limit:int option -&gt; batchSize:int option -&gt; AsyncSeq&lt;&#39;b&gt;<br /><br />Full name: Farango.Collections.allDocumentsSequence</div>
+<div class="tip" id="fs29">module Cdc<br /><br />from Farango</div>
+<div class="tip" id="fs30">type Change =<br />&#160;&#160;| InsertUpdate<br />&#160;&#160;| Delete<br /><br />Full name: Farango.Cdc.Change</div>
+<div class="tip" id="fs31">union case Change.InsertUpdate: Change</div>
+<div class="tip" id="fs32">union case Change.Delete: Change</div>
+<div class="tip" id="fs33">val start : connection:&#39;a -&gt; bus:Bus -&gt; unit<br /><br />Full name: Farango.Cdc.start</div>
 
         </div>
         <div class="span1"></div>
