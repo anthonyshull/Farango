@@ -20,7 +20,7 @@ Currently, that means that you can CRUD a document as well as query the database
 
 We are, of course, open to community involvement.
 
-*Pro tip* Use `paket generate-load-scripts` to avoid manually loading all of Farango's dependencies in your .fsx files
+**Pro tip** Use `paket generate-load-scripts` to avoid manually loading all of Farango's dependencies in your .fsx files
 *)
 
 (**
@@ -112,7 +112,7 @@ async {
 
     let! replacedDocument = replaceDocument connection "users" "12345" "{\"username\":\"user\",\"password\":\"pass\"}"
 
-    return! deleteDocument connection "users" "newuser"
+    return! deleteDocument connection "users" "12345"
 
   | Error error -> return Error error
 } |> Async.RunSynchronously
