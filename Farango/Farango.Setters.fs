@@ -27,6 +27,11 @@ let setKeys (keys: List<string>) (map: Map<string, obj>) =
 let setQuery (query: string) (map: Map<string, obj>) =
   map |> Map.add "query" (box<string> query)
 
+let setBindVars (bindVars: Map<string, obj> option) (map: Map<string, obj>) =
+  match bindVars with
+  | None -> map
+  | Some bindVars -> map |> Map.add "bindVars" (box<Map<string, obj>> bindVars)
+
 let setBatchSize (batchSize: int option) (map: Map<string, obj>) =
   match batchSize with
   | Some batchSize -> map |> Map.add "batchSize" (box<int> batchSize)

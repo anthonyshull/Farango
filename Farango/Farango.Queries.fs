@@ -8,12 +8,13 @@ open Farango.Json
 open Farango.Setters
 open Farango.Types
 
-let query (connection: Connection) (query: string) (batchSize: int option) = async {
+let query (connection: Connection) (query: string) (bindVars: Map<string, obj> option) (batchSize: int option) = async {
   let localPath = sprintf "_db/%s/_api/cursor" connection.Database
 
   let! firstResult =
     Map.empty
     |> setQuery query
+    |> setBindVars bindVars
     |> setBatchSize batchSize
     |> serialize
     |> getFirstResult post connection localPath
@@ -21,12 +22,13 @@ let query (connection: Connection) (query: string) (batchSize: int option) = asy
   return! moreResults connection firstResult
 }
 
-let private querySequenceBatch (connection: Connection) (query: string) (batchSize: int option) = asyncSeq {
+let private querySequenceBatch (connection: Connection) (query: string) (bindVars: Map<string, obj> option) (batchSize: int option) = asyncSeq {
   let localPath = sprintf "_db/%s/_api/cursor" connection.Database
   
   let! firstResult =
     Map.empty
     |> setQuery query
+    |> setBindVars bindVars
     |> setBatchSize batchSize
     |> serialize
     |> getFirstResult post connection localPath
@@ -34,8 +36,8 @@ let private querySequenceBatch (connection: Connection) (query: string) (batchSi
   yield! moreSequenceResults connection firstResult
 }
 
-let querySequence (connection: Connection) (query: string) (batchSize: int option) =
-  querySequenceBatch connection query batchSize
+let querySequence (connection: Connection) (query: string) (bindVars: Map<string, obj> option) (batchSize: int option) =
+  querySequenceBatch connection query bindVars batchSize
   |> AsyncSeq.takeWhile (fun x ->
     match x with
     | Some _ -> true

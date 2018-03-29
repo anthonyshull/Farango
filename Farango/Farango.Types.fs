@@ -16,6 +16,13 @@ type Connection = {
   Jwt: Jwt option
 }
 
+type ErrorResponse = {
+  error: bool
+  errorMessage: string
+  code: int
+  errorNum: int
+}
+
 type BatchResponse = {
   error: bool
   code: int

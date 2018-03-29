@@ -12,8 +12,8 @@ We are, of course, open to community involvement.
 
 **0.0.1**
 
-* Create, read, replace, update, and delete documents.
-* Query in batches and sequences.
+* Create, read, replace, update, and delete documents
+* Query in batches and sequences
 
 **0.0.2**
 
@@ -25,4 +25,6 @@ We are, of course, open to community involvement.
 
 **0.0.4**
 
-* Full test suite
+* Queries use bindVars
+* Query error reporting
+* Styled documentation

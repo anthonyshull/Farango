@@ -1,23 +1,80 @@
+body {
+  color: #2D3337;
+}
+
+p {
+  margin-bottom: 20px;
+}
+
+a {
+  color: #4A90E2;
+}
+
+h1.title {
+  font-size: 48px;
+  margin-bottom: 30px !important;
+}
+
+h2.subtitle {
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+h3 {
+  color: black;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  font-size: 16px;
+  letter-spacing: 3px;
+}
+
+ol {
+  padding: 0px 20px;
+  margin-bottom: 20px;
+}
+
+code {
+  font-family: "Roboto Mono";
+  font-size: 12px !important;
+  background: #FFF6BD;
+  color: #2D3337;
+}
+
+img {
+  width: 50px;
+  margin-right: 15px;
+  margin-bottom: 15px;
+  float: left;
+}
+
+.hero {
+  margin-bottom: 20px;
+  padding-right: 15px;
+  background: #F7F7F7;
+}
+
+.hero-body {
+  padding-bottom: 15px;
+  padding-right: 15px;
+}
+
 /* identifier */
-span.i { color:#000000; }
-/* comment */
-span.c { color:#008000; }
+span.e,
+span.i,
+span.f,
+span.k,
+span.l,
+span.o,
+span.t { color:white; }
 /* inactive code */
-span.inactive { color:#808080; }
+span.inactive { color:white; }
 /* keywords */
-span.k { color:#000080;  }
+span.k,
+span.prep { color:#F3D211;  }
 /* numbers */
-span.n { color:#008000; }
-/* operators */
-span.o { color:#800080; }
-/* preprocessor */
-span.prep { color:#800080; }
+span.n { color:#E24AA0; }
 /* string */
-span.s { color:#808000; }
-/* line number */
-span.l { color:#80b0b0; }
-/* fsi output */
-span.fsi { font-style:italic; color:#606060; }
+span.s { color: #6BE0E7; }
 /* omitted */
 span.omitted { 
 	border:solid 1px #d8d8d8;
@@ -39,11 +96,6 @@ div.tip
 	pointer-events:none;
 }
 
-h2
-{
-	font:bold 16pt 'calibri';
-}
-
 pre a.fssniplink
 {
 	font:bold 7.5pt calibry, arial, verdana; 
@@ -54,19 +106,21 @@ pre a.fssniplink
 }
 
 /* Optionally, also configure how the PRE element and TABLE.PRE look */
+table.pre {
+  color: white;
+  margin-bottom: 20px;
+}
+
 table.pre pre {
   padding:0px;
-  margin:0px;
   border-style:none;
 }
 
 pre, table.pre td {
   padding:9.5px;
-  background:#f5f5f5;
-  border:solid 1px black;
+  background:#333;
   border-radius:4px;
   border-color:rgba(0,0,0,0.15);
-  margin:0px 0px 10px 0px;
 }
 
 table.pre td.lines {
@@ -81,8 +135,6 @@ table.pre td.snippet {
   border-left-style: none;
   padding-left:4px;
 }
-
-code, pre, pre code {
-	font-family:9pt consolas, monaco,'Lucida Console',monospace;
-  line-height:13pt;
+table.pre code {
+  color: white;
 }

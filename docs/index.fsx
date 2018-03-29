@@ -1,26 +1,39 @@
 (**
-Farango
-=======
-
-<hr />
-
-Farango is a native F# client for [ArangoDB](https://www.arangodb.com/).
-
-It was developed to fulfill three requirements.
-
-  1. We prefer a bespoke idiomatic F# client over MacGyvering C# libraries.
-  2. We want to leverage async to keep our applications non-blocking.
-  That includes using AsyncSeq to return results as they become available.
-  3. As developers, we don't want to be pigeonholed into receiving results in a given construct (Maps or Dictionaries) or with a given libary (Newtonsoft or Chiron.)
-  We leave it up to client users how they want to parse results.
-
-That being said, Farango is currently a library of convenience.
-We implement features as we need them.
-Currently, that means that you can CRUD a document as well as query the database.
-
-We are, of course, open to community involvement.
-
-**Pro tip** Use `paket generate-load-scripts` to avoid manually loading all of Farango's dependencies in your .fsx files
+<section class="section">
+  <div class="container">
+    <img src="logo.svg" />
+    <h1 class="title">Farango</h1>
+    <h2 class="subtitle">
+      A native F# client for <a href="https://www.arangodb.com/">ArangoDB</a>
+    </h2>
+  </div>
+</section>
+<section class="hero is-light">
+  <div class="hero-body">
+    <div class="container">
+      <p>
+        It was developed to fulfill three requirements.
+      </p>
+      <ol>
+        <li>We prefer a bespoke idiomatic F# client over MacGyvering C# libraries.</li>
+        <li>We want to leverage async to keep our applications non-blocking. That includes using AsyncSeq to return results as they become available.</li>
+        <li>As developers, we don't want to be pigeonholed into receiving results in a given construct (Maps or Dictionaries) or with a given libary (Newtonsoft or Chiron.)
+        We leave it up to client users how they want to parse results.</li>
+      </ol>
+      <p>
+        That being said, Farango is currently a library of convenience.
+        We implement features as we need them.
+        Currently, that means that you can CRUD a document as well as query the database.
+      </p>
+      <p>
+        We are, of course, open to community involvement.
+      </p>
+      <p>
+       <em>Pro tip</em> Use <code>paket generate-load-scripts</code> to avoid manually loading all of Farango's dependencies in your .fsx files
+      </p>
+    </div>
+  </div>
+</section>
 *)
 
 (**
@@ -51,7 +64,7 @@ If the result is a list of documents it will have the form `Result<string list, 
 (**
 ### Queries
 
-Queries are given a Connection, query (string), and an optional batchSize (int option.)
+Queries are given a Connection, query, and optional Map of bindVars, and an optional batchSize.
 Queries return all results at once even if the background requests are batched as per batchSize.
 
 *)
@@ -62,16 +75,35 @@ async {
   match connection with
   | Ok connection ->
 
-    return! query connection "FOR u IN users RETURN u" (Some 100)
+    return! query connection "FOR u IN users RETURN u" None (Some 100)
 
   | Error error -> return Error error
 } |> Async.RunSynchronously
+(**
 
+bindVars allow you to inject variables into queries in a safe manner.
+
+*)
+#load "../Farango/Farango.Queries.fs"
+open Farango.Queries
+
+async {
+  match connection with
+  | Ok connection ->
+
+    let bindVars =
+      Map.empty.
+        Add("key", (box<string> "12345"))
+
+    return! query connection "FOR u IN users FILTER u._key == @key RETURN u" (Some bindVars) (Some 100)
+
+  | Error error -> return Error error
+} |> Async.RunSynchronously
 (**
 ### Query Sequences
 
 You can also use query results as a sequence.
-They are also given a connection, query, and optional batchSize like a regular query.
+They are also given a connection, query, an optional Map of bindVars, and an optional batchSize like a regular query.
 You will need to use the [AsyncSeq](https://fsprojects.github.io/FSharp.Control.AsyncSeq/library/AsyncSeq.html) library to manipulate the sequence.
 Here, batchSize will determine how many results are returned in each iteration of the sequence.
 
@@ -83,7 +115,7 @@ async {
   match connection with
   | Ok connection ->
 
-    querySequence connection "FOR u IN users RETURN u" (Some 100)
+    querySequence connection "FOR u IN users RETURN u" None (Some 100)
     |> AsyncSeq.iter (printfn "\n%A\n")
     |> Async.Start
 
@@ -147,7 +179,7 @@ async {
   match connection with
   | Ok connection ->
 
-  return! allDocuments connection "users" None None None
+    return! allDocuments connection "users" None None None
 
   | Error error -> return Error error
 } |> Async.RunSynchronously
@@ -166,7 +198,7 @@ async {
     |> AsyncSeq.iter (printfn "\n%A\n")
     |> Async.Start
 
-  | Error error -> ()
+  | _ -> ()
 } |> Async.RunSynchronously
 
 (**
@@ -196,7 +228,9 @@ open Farango.Cdc
 
 match connection with
 | Ok connection ->
+
   let sub1 = { Change = InsertUpdate; Collection = Some "users"; Fn = printfn "\n%A\n" }
   let sub2 = { Change = Delete; Collection = None; Fn = printfn "\n%A\n" }
   start connection [sub1; sub2]
-| Error _ -> ()
+
+| _ -> ()

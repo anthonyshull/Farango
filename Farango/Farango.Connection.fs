@@ -28,6 +28,15 @@ let private createConnection (uri: string): Result<Connection, string> =
 let private handleResponse (response: HttpResponse) =
   match response.StatusCode with
   | 200 | 201 | 202 -> parseResponse response.Body
+  | 400 ->
+    let errorResponse =
+      response.Body
+      |> parseResponse
+      |> Result.bind deserialize<ErrorResponse>
+    match errorResponse with
+    | Ok error ->
+      Error (sprintf "%d: %s" response.StatusCode error.errorMessage)
+    | _ -> Error (sprintf "Connection failed wtih %d: %s" response.StatusCode response.ResponseUrl)
   | _ -> Error (sprintf "Connection failed with %d: %s" response.StatusCode response.ResponseUrl)
 
 let private query (method: string) (connection: Connection) (localPath: string) = async {
