@@ -1,12 +1,15 @@
-source https://www.nuget.org/api/v2
+version 5.161.3
 
-framework: >= net461
+storage: none
+
+source https://www.nuget.org/api/v2
+framework: auto-detect
+
 nuget Fable.JsonConverter
 nuget FAKE
 nuget FSharp.Control.AsyncSeq
 nuget FSharp.Core
-nuget FSharp.Data
-nuget FSharp.Formatting
+nuget FSharp.Data 3.0.0-beta3
 nuget Newtonsoft.Json
 
 group Build
