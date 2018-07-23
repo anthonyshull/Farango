@@ -114,3 +114,14 @@ let documentsByKeys (connection: Connection) (collection: string) (keys: List<st
     Result.map (fun x -> x.documents) deserializedResult
     |> Result.map (List.map serialize)
 }
+
+let createCollection (connection: Connection) (collection: string) = async {
+  let localPath = sprintf "_db/%s/_api/collection" connection.Database
+  let body = sprintf "{\"name\":\"%s\"}" collection
+  return! post connection localPath body
+}
+
+let dropCollection (connection: Connection) (collection: string) = async {
+  let localPath = sprintf "_db/%s/_api/collection/%s" connection.Database collection
+  return! delete connection localPath
+}

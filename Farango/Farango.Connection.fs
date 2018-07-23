@@ -88,15 +88,3 @@ let connect (uri: string) : Async<Result<Connection, string>> = async {
       | Ok jwtResponse -> return Ok { connection with Jwt = Some jwtResponse.jwt}
     | _ -> return Error "Auth response code is not 200."
 }
-
-let createCollection (connection: Connection) (collection: string) = async {
-  let localPath = sprintf "_db/%s/_api/collection" connection.Database
-  let body = sprintf "{\"name\":\"%s\"}" collection
-  return! post connection localPath body
-}
-
-let dropCollection (connection: Connection) (collection: string) = async {
-  let localPath = sprintf "_db/%s/_api/collection/%s" connection.Database collection
-  return! delete connection localPath
-}
-
