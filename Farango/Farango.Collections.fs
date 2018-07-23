@@ -125,3 +125,18 @@ let dropCollection (connection: Connection) (collection: string) = async {
   let localPath = sprintf "_db/%s/_api/collection/%s" connection.Database collection
   return! delete connection localPath
 }
+
+let createHashIndex' (connection: Connection) (collection: string) (fields: string list)
+                    (unique: bool) (sparse: bool) (deduplicate: bool) = async {
+  let localPath = sprintf "_db/%s/_api/index?collection=%s" connection.Database collection
+  let fields =
+    fields
+    |> List.map (fun f -> sprintf "\"%s\"" f)
+    |> String.concat ","
+  let body = sprintf """{"type":"hash","fields":[%s],"unique":%A,"sparse":%A,"deduplicate":%A}""" fields unique sparse deduplicate
+  return! post connection localPath body
+}
+
+let createHashIndex (connection: Connection) (collection: string) (fields: string list)
+                    (unique: bool) =
+  createHashIndex' connection collection fields unique false false
