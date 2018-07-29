@@ -126,17 +126,55 @@ let dropCollection (connection: Connection) (collection: string) = async {
   return! delete connection localPath
 }
 
-let createHashIndex' (connection: Connection) (collection: string) (fields: string list)
-                    (unique: bool) (sparse: bool) (deduplicate: bool) = async {
+type IndexSetting =
+  | HashIndex of fields : string list * unique : bool * sparse : bool * deduplicate : bool
+  | SkiplistIndex of fields : string list * unique : bool * sparse : bool * deduplicate : bool
+  | PersistentIndex of fields : string list * unique : bool * sparse : bool
+
+let private encodeFields (fields : string list) =
+  fields
+  |> List.map (fun f -> sprintf "\"%s\"" f)
+  |> String.concat ","
+let private encodeBody (type' : string) (fields : string list) (unique : bool) (sparse : bool) (deduplicate : bool option) =
+  let deduplicate =
+    deduplicate
+    |> Option.map (fun d -> sprintf ""","deduplicate":%A""" d)
+    |> Option.defaultValue ""
+  sprintf """{"type":"%s","fields":[%s],"unique":%A,"sparse":%A%s}""" type' (encodeFields fields) unique sparse deduplicate
+
+let createIndex (connection: Connection) (collection: string) (index : IndexSetting) = async {
   let localPath = sprintf "_db/%s/_api/index?collection=%s" connection.Database collection
-  let fields =
-    fields
-    |> List.map (fun f -> sprintf "\"%s\"" f)
-    |> String.concat ","
-  let body = sprintf """{"type":"hash","fields":[%s],"unique":%A,"sparse":%A,"deduplicate":%A}""" fields unique sparse deduplicate
+  let body =
+    match index with
+    | HashIndex (f, u, s, d) -> encodeBody "hash" f u s (Some d)
+    | SkiplistIndex (f, u, s, d) -> encodeBody "skiplist" f u s (Some d)
+    | PersistentIndex (f, u, s) -> encodeBody "persistent" f u s None
   return! post connection localPath body
 }
+
+let createHashIndex' (connection: Connection) (collection: string) (fields: string list)
+                    (unique: bool) (sparse : bool) (deduplicate : bool) =
+  HashIndex (fields, unique, sparse, deduplicate)
+  |> createIndex connection collection
 
 let createHashIndex (connection: Connection) (collection: string) (fields: string list)
                     (unique: bool) =
   createHashIndex' connection collection fields unique false false
+
+let createSkiplistIndex' (connection: Connection) (collection: string) (fields: string list)
+                    (unique: bool) (sparse : bool) (deduplicate : bool) =
+  SkiplistIndex (fields, unique, sparse, deduplicate)
+  |> createIndex connection collection
+
+let createSkiplistIndex (connection: Connection) (collection: string) (fields: string list)
+                    (unique: bool) =
+  createSkiplistIndex' connection collection fields unique false false
+
+let createPersistentIndex' (connection: Connection) (collection: string) (fields: string list)
+                    (unique: bool) (sparse : bool) (deduplicate : bool) =
+  PersistentIndex (fields, unique, sparse)
+  |> createIndex connection collection
+
+let createPersistentIndex (connection: Connection) (collection: string) (fields: string list)
+                    (unique: bool) =
+  createPersistentIndex' connection collection fields unique false
