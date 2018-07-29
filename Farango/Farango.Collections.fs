@@ -171,7 +171,7 @@ let createSkiplistIndex (connection: Connection) (collection: string) (fields: s
   createSkiplistIndex' connection collection fields unique false false
 
 let createPersistentIndex' (connection: Connection) (collection: string) (fields: string list)
-                    (unique: bool) (sparse : bool) (deduplicate : bool) =
+                    (unique: bool) (sparse : bool) =
   PersistentIndex (fields, unique, sparse)
   |> createIndex connection collection
 
