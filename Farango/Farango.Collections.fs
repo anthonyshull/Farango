@@ -128,13 +128,15 @@ let dropCollection (connection: Connection) (collection: string) = async {
 
 type IndexSetting =
   | HashIndex of fields : string list * unique : bool * sparse : bool * deduplicate : bool
-  | SkiplistIndex of fields : string list * unique : bool * sparse : bool * deduplicate : bool
+  | SkipListIndex of fields : string list * unique : bool * sparse : bool * deduplicate : bool
   | PersistentIndex of fields : string list * unique : bool * sparse : bool
+  | FullTextIndex of fields : string list * minLength : int
 
 let private encodeFields (fields : string list) =
   fields
   |> List.map (fun f -> sprintf "\"%s\"" f)
   |> String.concat ","
+
 let private encodeBody (type' : string) (fields : string list) (unique : bool) (sparse : bool) (deduplicate : bool option) =
   let deduplicate =
     deduplicate
@@ -147,8 +149,10 @@ let createIndex (connection: Connection) (collection: string) (index : IndexSett
   let body =
     match index with
     | HashIndex (f, u, s, d) -> encodeBody "hash" f u s (Some d)
-    | SkiplistIndex (f, u, s, d) -> encodeBody "skiplist" f u s (Some d)
+    | SkipListIndex (f, u, s, d) -> encodeBody "skiplist" f u s (Some d)
     | PersistentIndex (f, u, s) -> encodeBody "persistent" f u s None
+    | FullTextIndex (f, m) ->
+      sprintf """{"type":"fulltext","fields":[%s],"minLength":%d}""" (encodeFields f) m
   return! post connection localPath body
 }
 
@@ -161,14 +165,14 @@ let createHashIndex (connection: Connection) (collection: string) (fields: strin
                     (unique: bool) =
   createHashIndex' connection collection fields unique false false
 
-let createSkiplistIndex' (connection: Connection) (collection: string) (fields: string list)
+let createSkipListIndex' (connection: Connection) (collection: string) (fields: string list)
                     (unique: bool) (sparse : bool) (deduplicate : bool) =
-  SkiplistIndex (fields, unique, sparse, deduplicate)
+  SkipListIndex (fields, unique, sparse, deduplicate)
   |> createIndex connection collection
 
-let createSkiplistIndex (connection: Connection) (collection: string) (fields: string list)
+let createSkipListIndex (connection: Connection) (collection: string) (fields: string list)
                     (unique: bool) =
-  createSkiplistIndex' connection collection fields unique false false
+  createSkipListIndex' connection collection fields unique false false
 
 let createPersistentIndex' (connection: Connection) (collection: string) (fields: string list)
                     (unique: bool) (sparse : bool) =
@@ -178,3 +182,9 @@ let createPersistentIndex' (connection: Connection) (collection: string) (fields
 let createPersistentIndex (connection: Connection) (collection: string) (fields: string list)
                     (unique: bool) =
   createPersistentIndex' connection collection fields unique false
+
+let createFullTextIndex' (connection: Connection) (collection: string) (fields: string list)
+                    (minLength: int) =
+  FullTextIndex (fields, minLength)
+  |> createIndex connection collection
+
