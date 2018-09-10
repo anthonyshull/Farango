@@ -1,5 +1,7 @@
 module Farango.Types
 
+open Newtonsoft.Json.Linq
+
 type Jwt = string
 
 type JwtResponse = {
@@ -26,7 +28,7 @@ type ErrorResponse = {
 type BatchResponse = {
   error: bool
   code: int
-  result: List<Map<string, obj>>
+  result: List<JToken>
   hasMore: bool
   id: string option
 }
