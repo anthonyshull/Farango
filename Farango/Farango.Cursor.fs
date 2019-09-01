@@ -1,6 +1,7 @@
 module Farango.Cursor
 
 open FSharp.Control
+open Newtonsoft.Json.Linq
 
 open Farango.Connection
 open Farango.Json
@@ -19,7 +20,7 @@ let getNextBatch (connection: Connection) (cursor: string) = async {
   return result |> Result.bind deserialize<BatchResponse>
 }
 
-let rec getCursor (connection: Connection) (cursor: string) (results: List<Map<string, obj>>) = async {
+let rec getCursor (connection: Connection) (cursor: string) (results: List<JToken>) = async {
 
   let! deserializedResult = getNextBatch connection cursor
 
@@ -34,6 +35,9 @@ let rec getCursor (connection: Connection) (cursor: string) (results: List<Map<s
       return! getCursor connection cursor (results @ deserializedResult.result)
 }
 
+let jtokenToString (token : JToken) =
+  token.ToString ()
+
 let moreResults (connection: Connection) (firstResult: Result<BatchResponse, string>) = async {
   
   match firstResult with
@@ -46,11 +50,11 @@ let moreResults (connection: Connection) (firstResult: Result<BatchResponse, str
       let! moreResults = getCursor connection id deserializedResult.result
       return
         moreResults
-        |> Result.map (List.map serialize)
+        |> Result.map (List.map jtokenToString)
   | Ok deserializedResult when not deserializedResult.hasMore ->
     return
       deserializedResult.result
-      |> List.map serialize
+      |> List.map jtokenToString
       |> Ok
    | _ ->
      return Error "QueryResponse.hasMore is neither true nor false."
@@ -66,9 +70,9 @@ let rec getBatchCursor (connection: Connection) (cursor: string) = asyncSeq {
   | Ok deserializedResult ->
     match deserializedResult.hasMore with
     | false ->
-      yield deserializedResult.result |> List.map serialize |> Ok |> Some
+      yield deserializedResult.result |> List.map jtokenToString |> Ok |> Some
     | true ->
-      yield deserializedResult.result |> List.map serialize |> Ok |> Some
+      yield deserializedResult.result |> List.map jtokenToString |> Ok |> Some
       yield! getBatchCursor connection cursor
 }
 
@@ -76,7 +80,7 @@ let moreSequenceResults (connection: Connection) (firstResult: Result<BatchRespo
   match firstResult with
   | Error error -> yield Some (Error error)
   | Ok initialResult ->
-    yield initialResult.result |> List.map serialize |> Ok |> Some
+    yield initialResult.result |> List.map jtokenToString |> Ok |> Some
     match initialResult.hasMore with
     | false ->
       yield None

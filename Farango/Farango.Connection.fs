@@ -46,7 +46,10 @@ let private query (method: string) (connection: Connection) (localPath: string) 
     let! response = Http.AsyncRequest(requestUri, httpMethod = method, silentHttpErrors = true)
     return handleResponse response
   | Some jwt ->
-    let headers = [HttpRequestHeaders.Authorization ("bearer " + jwt)]
+    let headers = [
+      HttpRequestHeaders.Authorization ("bearer " + jwt)
+      HttpRequestHeaders.ContentTypeWithEncoding ("text/plain", System.Text.Encoding.UTF8)
+    ]
     let! response = Http.AsyncRequest(requestUri, httpMethod = method, headers = headers, silentHttpErrors = true)
     return handleResponse response
 }
@@ -62,7 +65,10 @@ let private command (method: string) (connection: Connection) (localPath: string
     let! response = Http.AsyncRequest(requestUri, httpMethod = method, body = TextRequest body, silentHttpErrors = true)
     return handleResponse response
   | Some jwt ->
-    let headers = [HttpRequestHeaders.Authorization ("bearer " + jwt)]
+    let headers = [
+      HttpRequestHeaders.Authorization ("bearer " + jwt)
+      HttpRequestHeaders.ContentTypeWithEncoding ("text/plain", System.Text.Encoding.UTF8)
+    ]
     let! response = Http.AsyncRequest(requestUri, httpMethod = method, headers = headers, body = TextRequest body, silentHttpErrors = true)
     return handleResponse response
 }
